@@ -1,0 +1,42 @@
+   ****** Beginning of mfile2sci() session ******
+   File to convert: D:/Nandish/Matlab MPC Files/createHFG.m
+   Result file path: D:/Scilab/Test/
+   Recursive mode: OFF
+   Only double values used in M-file: NO
+   Verbose mode: 3
+   Generate formated code: NO
+   M-file reading...
+   M-file reading: Done
+   Syntax modification...
+   Syntax modification: Done
+   Macro to tree conversion...
+   Conversion of M-tree...
+   ! L.9: mtlb(B) can be replaced by B() or B whether B is an M-file or not.
+   ! L.11: mtlb(A) can be replaced by A() or A whether A is an M-file or not.
+   ! L.18: mtlb(N) can be replaced by N() or N whether N is an M-file or not.
+   ! L.18: mtlb(A) can be replaced by A() or A whether A is an M-file or not.
+   ! L.18: mtlb(N) can be replaced by N() or N whether N is an M-file or not.
+   ! L.20: mtlb(N) can be replaced by N() or N whether N is an M-file or not.
+   ! L.21: mtlb(A) can be replaced by A() or A whether A is an M-file or not.
+   ! L.22: mtlb(N) can be replaced by N() or N whether N is an M-file or not.
+   ! L.26: mtlb(A) can be replaced by A() or A whether A is an M-file or not.
+   ! L.26: mtlb(B) can be replaced by B() or B whether B is an M-file or not.
+   ! L.32: mtlb(N) can be replaced by N() or N whether N is an M-file or not.
+   ! L.33: mtlb(Q) can be replaced by Q() or Q whether Q is an M-file or not.
+   !! L.33: Matlab function blkdiag not yet converted, original calling sequence
+  used.
+   ! L.36: mtlb(P) can be replaced by P() or P whether P is an M-file or not.
+   !! L.36: Matlab function blkdiag not yet converted, original calling sequence
+  used.
+   ! L.39: mtlb(N) can be replaced by N() or N whether N is an M-file or not.
+   ! L.40: mtlb(R) can be replaced by R() or R whether R is an M-file or not.
+   !! L.40: Matlab function blkdiag not yet converted, original calling sequence
+  used.
+   ! L.46: mtlb(Q) can be replaced by Q() or Q whether Q is an M-file or not.
+   Conversion of M-tree: Done
+   Macro to tree conversion: Done
+   Translation may be improved: see the //! comments and for all mtlb_<funname> 
+ function call\n  Type help mtlb_<funname> in Scilab command window to get infor
+ mation about improvements.
+   Translation may be wrong (see the //!! comments).
+   ****** End of mfile2sci() session ******

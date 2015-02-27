@@ -1,0 +1,8 @@
+function [H,F,G,cm3,Mm,Qbar,RN]=createHFG(N,A,B,Q,P,R)
+ 
+the size of Q is the a square matrix of size Ns*Ns..number of states
+the size of P is the same except it is the Terminal weight
+the size of R is usually the same as the above
+ 
+ 
+ 
