@@ -18,29 +18,37 @@ function [H,F,G,Cm,Mm]=predmat(Np,Nc,Q,R,A,B,varargin)
     Ns=size(A,1)
     Nu=size(B,2)
     Ny=size(C,1)
+    Ns=Ny //to cater for both state and output cost function
+    a=zeros(Ns,Nu)
     Cm=zeros(Np*Ns,Nc*Nu)
+    Mm=zeros(Np*Ns,Ns)
     //Creating Cm matrix
     for i=1:Np
+        Mm((i-1)*Ns+1:i*Ns,1:Ns)=A^i
         for j=1:Nc
-            if i>=j then
-                Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=(A^(i-j))*B
+            if i>=j & i<=Nc then
+                Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=C*(A^(i-j))*B
             end
-            if i>=Nc then
-               if j==Nc then
-                   for k=1:1-Nc
-                       Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)+(A^(i-Nc))*B
-                   end
-              else
-                  Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=(A^(i-j))*B
-              end
-           end          
+            if i>=j & i>Nc then
+                if j==Nc then
+                    for k=0:(i-Nc)
+                        a=a+(C*(A^k)*B)
+                    end
+                     Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=a
+                     a=zeros(Ns,Nu)
+                 else
+                     Cm((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=C*(A^(i-j))*B
+                end
+                
+            end
+            
     end
 end
 
     
    
     H=Cm
-    F=0
+    F=Mm
     G=0
     Cm=0
     Mm=0
@@ -68,5 +76,9 @@ ref=2
 matSS=[A-eye(size(A,1),size(A,1)) B;C(3,:) zeros(size(C(3,:),1),size(B,2))]
 refD=[zeros(Ns,1) ;ref]
 
+Q=eye(4,4)
+R=1
 
+//[H,F]=predmat(5,3,Q,R,A,B)
+[H,F]=predmat(5,3,Q,R,A,B,C)
 
