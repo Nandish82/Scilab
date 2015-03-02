@@ -100,7 +100,8 @@ function [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
     // Acon.u=>bcon+Scon*x
     
     
-    Ns=size(Sx,1) /Np//extract size from constraints 
+    Nsy=size(Sx,1) /Np//extract size from constraints 
+    Ns=size(Sx,2)
     Nu=size(lbu,1)
     
     if Nu==0 then
@@ -115,7 +116,7 @@ function [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
     
     if lbx~=[] then
         Axcon=[Su;-Su]
-        bxcon=[repmat(eye(Ns,Ns),Np,1)*lbx;repmat(eye(Ns,Ns),Np,1)*-ubx]
+        bxcon=[repmat(eye(Nsy,Nsy),Np,1)*lbx;repmat(eye(Nsy,Nsy),Np,1)*-ubx]
         Sxxcon=[-Sx;Sx]
     else
         Axcon=[]
