@@ -18,7 +18,7 @@ Nu=size(Bc,2)
 Ny=size(Cc,1)
 
 //discrete model
-Ts=0.1 //sampling time
+Ts=0.1//sampling time
 A=eye(Ns,Ns)+Ts*Ac
 B=Bc*Ts
 C=Cc
@@ -86,7 +86,7 @@ uby=[pitch_angle_max;altitude_max;altitude_rate_max]
 //Simulation
 
 sim_time=10
-dt=0.1
+dt=Ts
 time_vec=[0:dt:sim_time]
 Npoints=length(time_vec)
 xdata=zeros(size(Adelta,1),Npoints)
@@ -98,9 +98,14 @@ xref=[0;0;0;40;0]
 xdata(:,1)=x0
 ydata(:,1)=Cdelta*xdata(:,1)
 
+
+
+bucon=[repmat(eye(Nu,Nu),Nc,1)*lbu;repmat(eye(Nu,Nu),Nc,1)*-ubu]
+
+
 for i=1:Npoints-1
     //soln=qp_solve(H,F*(xdata(:,i)-xref),Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
-    soln=qp_solve(H,F*(xdata(:,i)-xref),Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
+    [soln,iact,iter,f]=qp_solve(H,(F*(xdata(:,i)-xref))',Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
     u(i)=soln(1)
     
     xdata(:,i+1)=Adelta*xdata(:,i)+Bdelta*(u(i))
