@@ -18,7 +18,7 @@ Nu=size(Bc,2)
 Ny=size(Cc,1)
 
 //discrete model
-Ts=0.1//sampling time
+Ts=0.5//sampling time
 A=eye(Ns,Ns)+Ts*Ac
 B=Bc*Ts
 C=Cc
@@ -28,14 +28,14 @@ D=Dc
 [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
 
 ///setting of mpc problem
-Np=10; //prediction horizon
+Np=5; //prediction horizon
 Nc=3; //control horizon
 
 Qx=eye(size(Adelta,1),size(Adelta,1))
 Rx=eye(size(Bdelta,2),size(Bdelta,2))
 
 Qy=eye(size(Cdelta,1),size(Cdelta,1))
-Ry=eye(size(Bdelta,2),size(Bdelta,2))*10
+Ry=eye(size(Bdelta,2),size(Bdelta,2))*100
 [H,F,G,Su,Sx]=predmat(Np,Nc,Qy,Ry,Adelta,Bdelta,Cdelta)
 
 //states=[xxx pitch angle xxx altitude]
@@ -79,13 +79,13 @@ uby=[pitch_angle_max;altitude_max;altitude_rate_max]
 // A.x>=b
 
 
-[Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lby,uby,Np,Nc)
+[Acon,bcon,Sxcon,bxcon,Sxxcon,Axcon,bucon]=mpcconstraints(Su,Sx,lbu,ubu,lby,uby,Np,Nc)
 
 //
 
 //Simulation
 
-sim_time=10
+sim_time=5
 dt=Ts
 time_vec=[0:dt:sim_time]
 Npoints=length(time_vec)
@@ -100,15 +100,17 @@ ydata(:,1)=Cdelta*xdata(:,1)
 
 
 
-bucon=[repmat(eye(Nu,Nu),Nc,1)*lbu;repmat(eye(Nu,Nu),Nc,1)*-ubu]
+//bucon=[repmat(eye(Nu,Nu),Nc,1)*lbu;repmat(eye(Nu,Nu),Nc,1)*-ubu]
 
 
 for i=1:Npoints-1
     //soln=qp_solve(H,F*(xdata(:,i)-xref),Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
-    [soln,iact,iter,f]=qp_solve(H,(F*(xdata(:,i)-xref))',Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
-    u(i)=soln(1)
+    //[soln,iact,iter,f]=qp_solve(H,(F*(xdata(:,i)-xref))',Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
+    cxdata=xdata(:,i)-xref
+    soln=qld(H,F*cxdata,-1*Axcon,-1*(bxcon+Sxxcon*cxdata),bucon(1:Nc),-1*bucon(Nc+1:$),0)
+    udata(:,i)=soln(1)
     
-    xdata(:,i+1)=Adelta*xdata(:,i)+Bdelta*(u(i))
+    xdata(:,i+1)=Adelta*xdata(:,i)+Bdelta*(udata(:,i))
     ydata(:,i+1)=Cdelta*xdata(:,i+1)
 end
 
@@ -123,4 +125,6 @@ plot(time_vec,xdata(3,:)')
 subplot(324)
 plot(time_vec,xdata(4,:)')
 subplot(325)
-plot(time_vec,xdata(5,:)')
+plot2d2(time_vec,xdata(5,:)')
+subplot(326)
+plot2d2(time_vec,udata(1,:)')

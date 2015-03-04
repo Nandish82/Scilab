@@ -16,7 +16,7 @@ function [H,F,G,Su,Sx]=predmat(Np,Nc,Q,R,A,B,varargin)
     // Rtildex=(Nc*Nu) * (Nc*Nu)
     // Rtildex=Rtildey
     // H=Cm'*Qtildexy*Cm+R
-    // F=
+    // F=Su'*Qtilde*Sx [Nc x Nu]*[Ns ]
     
     testcmatrix=argn(2)-6
     //
@@ -95,7 +95,7 @@ function [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
     Ddelta=[D]
 endfunction
 
-function [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
+function [Acon,bcon,Sxcon,bxcon,Sxxcon,Axcon,bucon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
     // We write the constraints in the form
     // Acon.u=>bcon+Scon*x
     
@@ -103,6 +103,8 @@ function [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
     Nsy=size(Sx,1) /Np//extract size from constraints 
     Ns=size(Sx,2)
     Nu=size(lbu,1)
+    
+    disp(Nsy)
     
     if Nu==0 then
         lb=-10000000;
