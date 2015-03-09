@@ -133,3 +133,4 @@ function [Acon,bcon,Sxcon,bxcon,Sxxcon,Axcon,bucon]=mpcconstraints(Su,Sx,lbu,ubu
     Sxcon=[Sucon;Sxxcon]
     
 endfunction
+

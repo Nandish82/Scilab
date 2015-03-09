@@ -3,142 +3,8 @@ clear ;
 clc;
 
 
-function [H,F,G,Su,Sx]=predmat(Np,Nc,Q,R,A,B,varargin)
-    
-    //Np--prediction Horizon
-    //Nc--control Horizon
-    
-    //Test if C matrix is given. if given C=varargin(1) else C=identity(Ns,Ns);
-    
-    //matrix sizes
-    // Sux=(Np x Ns)*(Nc x Nu)
-    // Suy=(Np x Ny) *(Nc*Nu)
-    // Sxx=(Np*Ns) * (Ns)
-    // Sxy=(Np*Ny) *(Ns)
-    // Qtildex=(Np*Ns) * (Np*Ns)
-    // Qtildey=(Np*Ny) * (Np*Ny)
-    // Rtildex=(Nc*Nu) * (Nc*Nu)
-    // Rtildex=Rtildey
-    // H=Cm'*Qtildexy*Cm+R
-    // F=
-    
-    testcmatrix=argn(2)-6
-    //
-            //Cm(i,j)=1
-    
-    if testcmatrix==1 then
-        C=varargin(1)
-    else
-        C=eye(size(A,1),size(A,1))
-    end
-    Ns=size(A,1)
-    Nu=size(B,2)
-    Ny=size(C,1)
-    Ns=Ny //to cater for both state and output cost function
-    a=zeros(Ns,Nu)
-    Su=zeros(Np*Ns,Nc*Nu)
-    Sx=zeros(Np*Ns,Ns)
-    Qtilde=zeros(Np*Ns,Np*Ns)
-    Rtilde=zeros(Nc*Nu,Nc*Nu)
-    //Creating Cm matrix and Mm matrix
-    for i=1:Np
-        Sx((i-1)*Ns+1:i*Ns,1:size(C,2))=C*(A^i)
-        for j=1:Nc
-            if i>=j & i<=Nc then
-                Su((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=C*(A^(i-j))*B
-            end
-                
-            if i>=j & i>Nc then
-                if j==Nc then
-                    for k=0:(i-Nc)
-                        a=a+(C*(A^k)*B)
-                    end
-                     Su((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=a
-                     a=zeros(Ns,Nu)
-                 else
-                     Su((i-1)*Ns+1:i*Ns,(j-1)*Nu+1:j*Nu)=C*(A^(i-j))*B
-                end
-                
-            end
-            
-    end
-end
 
-//Qtilde and Rtilde Matrix
-
-P=Q //for now. P should be the solution to the algebraic ricatti equation
-
-for i=1:Np
-    if i<=Np-1 then
-        Qtilde((i-1)*Ns+1:i*Ns,(i-1)*Ns+1:i*Ns)=Q
-    else
-       Qtilde((i-1)*Ns+1:i*Ns,(i-1)*Ns+1:i*Ns)=P
-    end
-    
-end
-
-for i=1:Nc
-        Rtilde((i-1)*Nu+1:i*Nu,(i-1)*Nu+1:i*Nu)=R
-    
-end
-    
-   
-    H=Su'*Qtilde*Su+Rtilde
-    F=Su'*Qtilde*Sx
-    G=Sx'*Qtilde*Sx+C'*Q*C
-    
-endfunction
-
-function [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
-    Ns=size(A,1)
-    Nu=size(B,2)
-    Ny=size(C,1)
-    Adelta=[A B;zeros(Nu,Ns) eye(Nu,Nu)]
-    Bdelta=[B;eye(Nu,Nu)]
-    Cdelta=[C D]
-    Ddelta=[D]
-endfunction
-
-function [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
-    // We write the constraints in the form
-    // Acon.u=>bcon+Scon*x
-    
-    
-    Ns=size(Sx,1) /Np//extract size from constraints 
-    Nu=size(lbu,1)
-    
-    if Nu==0 then
-        lb=-10000000;
-        ub=10000000
-        Nu=1
-    end
-    
-        Aucon=[eye(Nc*Nu,Nc*Nu);-eye(Nc*Nu,Nc*Nu)]
-        bucon=[repmat(eye(Nu,Nu),Nc,1)*lbu;repmat(eye(Nu,Nu),Nc,1)*-ubu]
-        Sucon=zeros(size(bucon,1),Ns)
-    
-    if lbx~=[] then
-        Axcon=[Su;-Su]
-        bxcon=[repmat(eye(Ns,Ns),Np,1)*lbx;repmat(eye(Ns,Ns),Np,1)*-ubx]
-        Sxxcon=[-Sx;Sx]
-    else
-        Axcon=[]
-        bxcon=[]
-        Sxxcon=[]
-        
-    end
-    
-    //since in scilab we have to put constraints in the form
-    Acon=[Aucon;Axcon]
-    bcon=[bucon;bxcon]
-    Sxcon=[Sucon;Sxxcon]
-    
-endfunction
-
-
-
-
-
+exec('mpcfunctions.sci'); //loading functions in mpcfunctions.sci
 Ac=[-1.2822 0 0.98 0;0 0 1 0;-5.4293 0 -1.8366 0;-128.2 128.2 0 0]
 Bc=[-0.3;0;-17;0]
 Cc=[0 1 0 0;0 0 0 1;-128.2 128.2 0 0]
@@ -190,6 +56,7 @@ dt=0.25
 N=int(sim_time/dt)
 time_vec=[0:dt:(N-1)*dt]
 
+[Acon,bcon,Sxcon,bxcon,Sxxcon,Axcon,bucon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
 
 
 x0=[0;0.0;0;0]
@@ -207,8 +74,8 @@ P=syslin('d',A,B,C1,D12);    //The plant (continuous-time)
 [klqr,xlqr]=lqr(P)
 
 for i=1:N-1
-   [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lb,ub,lbx-xss,ubx-xss,Np,Nc)
-    soln=qp_solve(H,F*(xdata(:,i)-xss),Acon',bcon+Sxcon*(xdata(:,i)-xss),0)
+   [cxdata=xdata(:,i)-xref
+    soln=qld(H,F*cxdata,-1*Axcon,-1*(bxcon+Sxxcon*cxdata),bucon(1:Nc),-1*bucon(Nc+1:$),0)
     //u(i)=klqr*xdata(:,i)//soln(1)
     u(i)=soln(1)
     xdata(:,i+1)=A*xdata(:,i)+B*(u(i)+uss)
