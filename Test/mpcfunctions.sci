@@ -15,7 +15,7 @@ function [H,F,G,Su,Sx]=predmat(Np,Nc,Q,R,A,B,varargin)
     // Qtildey=(Np*Ny) * (Np*Ny)
     // Rtildex=(Nc*Nu) * (Nc*Nu)
     // Rtildex=Rtildey
-    // H=Cm'*Qtildexy*Cm+R
+    // H=Su'*Qtildexy*Su+R (Nc x Nu)*(Nc x Nu)
     // F=Su'*Qtilde*Sx [Nc x Nu]*[Ns ]
     
     testcmatrix=argn(2)-6

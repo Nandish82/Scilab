@@ -24,11 +24,15 @@ B=Bc*Ts
 C=Cc
 D=Dc
 
+//steady state matrix
+Cref=[0,0,0,1];
+Ssmat=[A-eye(size(A,1),size(A,1)) B;Cref zeros(size(Cref,1),size(B,2))]
+
 //Delta formulation
 [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
 
 ///setting of mpc problem
-Np=10; //prediction horizon
+Np=5; //prediction horizon
 Nc=3; //control horizon
 
 Qx=eye(size(Adelta,1),size(Adelta,1))
@@ -94,7 +98,7 @@ ydata=zeros(size(Cdelta,1),Npoints)
 udata=zeros(size(Bdelta,2),Npoints)
 x0=[0;0.0;0;0.0;0]
 
-xref=[0;0;0;40;0]
+xref=[0;0.0;0;40;0]
 xdata(:,1)=x0
 ydata(:,1)=Cdelta*xdata(:,1)
 

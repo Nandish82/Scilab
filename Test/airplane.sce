@@ -27,8 +27,8 @@ xss=ss(1:4)
 uss=ss(5)
 
 
-Np=4
-Nc=4
+Np=5
+Nc=3
 Qx=eye(4,4)
 R=10
 
