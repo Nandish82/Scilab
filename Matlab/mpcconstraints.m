@@ -26,6 +26,8 @@ function [Acon,bcon,Sxcon]=mpcconstraints(Su,Sx,lbu,ubu,lbx,ubx,Np,Nc)
         Axcon=[Su;-Su]
         bxcon=[repmat(eye(Nsy,Nsy),Np,1)*lbx;repmat(eye(Nsy,Nsy),Np,1)*-ubx]
         Sxxcon=[-Sx;Sx]
+        if(Ns!=Nsy)
+            
         
     end
     

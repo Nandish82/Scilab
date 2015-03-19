@@ -91,7 +91,7 @@ function [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
     Ny=size(C,1)
     Adelta=[A B;zeros(Nu,Ns) eye(Nu,Nu)]
     Bdelta=[B;eye(Nu,Nu)]
-    Cdelta=[C D]
+    Cdelta=[C D;zeros(Nu,Ns) eye(Nu,Nu)]
     Ddelta=[D]
 endfunction
 
@@ -133,4 +133,14 @@ function [Acon,bcon,Sxcon,bxcon,Sxxcon,Axcon,bucon]=mpcconstraints(Su,Sx,lbu,ubu
     Sxcon=[Sucon;Sxxcon]
     
 endfunction
+
+function [Ad,Bd,Cd,Dd]=mpcdiscretize(A,B,C,D,Ts)
+    s1=syslin('c',A,B,C,D)
+    sld=dscr(s1,Ts)
+    Ad=sld.A
+    Bd=sld.B
+    Cd=sld.C
+    Dd=sld.D
+endfunction
+
 

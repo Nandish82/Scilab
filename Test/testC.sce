@@ -1,4 +1,4 @@
-//Example 1 with  a simple C code
+c//Example 1 with  a simple C code
             f1=['#include <math.h>'
             'void fooc(double c[],double a[],double *b,int *m,int *n)'
             '{'

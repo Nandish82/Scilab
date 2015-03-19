@@ -5,5 +5,5 @@ function [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
     Ny=size(C,1);
     Adelta=[A B;zeros(Nu,Ns) eye(Nu,Nu)];
     Bdelta=[B;eye(Nu,Nu)];
-    Cdelta=[C D];
-    Ddelta=[D];
+    Cdelta=[C D;zeros(Nu,Ns) eye(Nu,Nu)];
+    Ddelta=[D;zeros(Nu,Nu)];

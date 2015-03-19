@@ -23,7 +23,7 @@ A=eye(Ns,Ns)+Ts*Ac
 B=Bc*Ts
 C=Cc
 D=Dc
-
+[A,B,C,D]=mpcdiscretize(Ac,Bc,Cc,Dc,Ts)
 //steady state matrix
 Cref=[0,0,0,1];
 Ssmat=[A-eye(size(A,1),size(A,1)) B;Cref zeros(size(Cref,1),size(B,2))]
@@ -32,7 +32,7 @@ Ssmat=[A-eye(size(A,1),size(A,1)) B;Cref zeros(size(Cref,1),size(B,2))]
 [Adelta,Bdelta,Cdelta,Ddelta]=mpcdelta(A,B,C,D)
 
 ///setting of mpc problem
-Np=5; //prediction horizon
+Np=10; //prediction horizon
 Nc=3; //control horizon
 
 Qx=eye(size(Adelta,1),size(Adelta,1))
@@ -75,9 +75,9 @@ ubx=[100000;pitch_angle_max;10000;10000;umax]
 
 
 
-
-lby=[pitch_angle_min;altitude_min;altitude_rate_min]
-uby=[pitch_angle_max;altitude_max;altitude_rate_max]
+///for delta formulation we add the input as a state in the output to be able to add constraints
+lby=[pitch_angle_min;altitude_min;altitude_rate_min;elevator_angle_min]
+uby=[pitch_angle_max;altitude_max;altitude_rate_max;elevator_angle_max]
 
 //Constraints matrices
 // A.x>=b
@@ -98,7 +98,7 @@ ydata=zeros(size(Cdelta,1),Npoints)
 udata=zeros(size(Bdelta,2),Npoints)
 x0=[0;0.0;0;0.0;0]
 
-xref=[0;0.0;0;40;0]
+xref=[0;0.0;0;400;0]
 xdata(:,1)=x0
 ydata(:,1)=Cdelta*xdata(:,1)
 
@@ -113,11 +113,11 @@ for i=1:Npoints-1
     cxdata=xdata(:,i)-xref
     //if(pmodulo(i*dt,Ts)==0)
     soln=qld(H,F*cxdata,-1*Axcon,-1*(bxcon+Sxxcon*cxdata),bucon(1:Nc),-1*bucon(Nc+1:$),0)
+    //soln=qp_solve(H,F*cxdata,Acon',bcon+Sxcon*cxdata,0)
     udata(:,i)=soln(1)
     //else
     //    udata(:,i+1)=udata(:,i);
     //end
-    
     xdata(:,i+1)=Adelta*xdata(:,i)+Bdelta*(udata(:,i))
     ydata(:,i+1)=Cdelta*xdata(:,i+1)
 end
@@ -142,10 +142,16 @@ scf(4)
 clf(4)
 subplot(221)
 plot(time_vec,ydata(1,:)'*(180/3.142))
+plot([0 sim_time],[pitch_angle_max pitch_angle_max]*(180/3.142),'r')
+plot([0 sim_time],[pitch_angle_min pitch_angle_min]*(180/3.142),'g')
 subplot(222)
 plot(time_vec,ydata(2,:)')
 subplot(223)
 plot(time_vec,ydata(3,:)')
+plot([0 sim_time],[altitude_rate_max altitude_rate_max],'r')
+plot([0 sim_time],[altitude_rate_min altitude_rate_min],'r')
 subplot(224)
-plot(time_vec,xdata(5,:)'*(180/3.142))
+plot2d2(time_vec,xdata(5,:)'*(180/3.142))
+plot([0 sim_time],[elevator_angle_max elevator_angle_max]*(180/3.142),'r')
+plot([0 sim_time],[elevator_angle_min elevator_angle_min]*(180/3.142),'r')
 
