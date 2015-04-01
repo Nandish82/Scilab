@@ -19,11 +19,14 @@ Ny=size(Cc,1)
 
 //discrete model
 Ts=0.5//sampling time
-A=eye(Ns,Ns)+Ts*Ac
+temp=(eye(Ns,Ns)+0.5*Ts*Ac)*inv((eye(Ns,Ns)-0.5*Ts*Ac))
+temp=inv(eye(Ns,Ns)-Ac*Ts)
+//A=temp
+A=eye(Ns,Ns)+Ts*Ac 
 B=Bc*Ts
 C=Cc
 D=Dc
-[A,B,C,D]=mpcdiscretize(Ac,Bc,Cc,Dc,Ts)
+//[A,B,C,D]=mpcdiscretize(Ac,Bc,Cc,Dc,Ts)
 //steady state matrix
 Cref=[0,0,0,1];
 Ssmat=[A-eye(size(A,1),size(A,1)) B;Cref zeros(size(Cref,1),size(B,2))]
@@ -89,7 +92,7 @@ uby=[pitch_angle_max;altitude_max;altitude_rate_max;elevator_angle_max]
 
 //Simulation
 
-sim_time=20
+sim_time=1.5
 dt=Ts
 time_vec=[0:dt:sim_time]
 Npoints=length(time_vec)
@@ -98,7 +101,7 @@ ydata=zeros(size(Cdelta,1),Npoints)
 udata=zeros(size(Bdelta,2),Npoints)
 x0=[0;0.0;0;0.0;0]
 
-xref=[0;0.0;0;400;0]
+xref=[0;0.0;0;40;0]
 xdata(:,1)=x0
 ydata(:,1)=Cdelta*xdata(:,1)
 
@@ -109,12 +112,13 @@ ydata(:,1)=Cdelta*xdata(:,1)
 
 for i=1:Npoints-1
     //soln=qp_solve(H,F*(xdata(:,i)-xref),Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
-    //[soln,iact,iter,f]=qp_solve(H,(F*(xdata(:,i)-xref))',Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
+   // [soln,iact,iter,f]=qp_solve(H,(F*(xdata(:,i)-xref))',Acon',bcon+Sxcon*(xdata(:,i)-xref),0)
     cxdata=xdata(:,i)-xref
     //if(pmodulo(i*dt,Ts)==0)
-    soln=qld(H,F*cxdata,-1*Axcon,-1*(bxcon+Sxxcon*cxdata),bucon(1:Nc),-1*bucon(Nc+1:$),0)
+   soln=qld(H,F*cxdata,-1*Axcon,-1*(bxcon+Sxxcon*cxdata),bucon(1:Nc),-1*bucon(Nc+1:$),0)
     //soln=qp_solve(H,F*cxdata,Acon',bcon+Sxcon*cxdata,0)
     udata(:,i)=soln(1)
+    //udata(:,i)=1;
     //else
     //    udata(:,i+1)=udata(:,i);
     //end
