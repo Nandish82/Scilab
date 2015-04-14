@@ -144,3 +144,43 @@ function [Ad,Bd,Cd,Dd]=mpcdiscretize(A,B,C,D,Ts)
 endfunction
 
 
+function [A,B,C,D,x0]=Readjac(filename)
+
+fp=mopen(filename,'r');
+N=mfscanf(3,fp,"%d")
+Ns=N(1)
+Nu=N(2)
+Ny=N(3)
+u=mfscanf(fp,"%f")
+for i=1:Ns
+    for j=1:Ns
+        A(i,j)=mfscanf(fp,"%f")
+    end
+    
+end
+for i=1:Ns
+    for j=1:Nu
+        B(i,j)=mfscanf(fp,"%f")
+    end
+    
+end
+for i=1:Ny
+    for j=1:Ns
+        C(i,j)=mfscanf(fp,"%f")
+    end
+    
+end
+for i=1:Ny
+    for j=1:Nu
+        D(i,j)=mfscanf(fp,"%f")
+    end
+    
+end
+for i=1:Ns
+        x0(i)=mfscanf(fp,"%f")
+    
+end
+mclose(fp)
+endfunction
+
+
